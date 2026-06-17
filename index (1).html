@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDSF – Smart Design Storage Facilities</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --ocean: #0077B6;
+  --navy: #023E8A;
+  --navy-dark: #012a60;
+  --sky: #E6EDF3;
+  --sky-dark: #d0dce8;
+  --white: #FFFFFF;
+  --text: #0B0F14;
+  --text-muted: #5a7299;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --blue-light: #e0f0ff;
+  --glass: rgba(255,255,255,0.7);
+  --glass-border: rgba(255,255,255,0.5);
+  --shadow: 0 4px 20px rgba(0,119,182,0.10);
+  --shadow-hover: 0 8px 32px rgba(0,119,182,0.18);
+}
+
+body { font-family: 'Inter', sans-serif; background: var(--sky); color: var(--text); min-height: 100vh; display: flex; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 220px; background: linear-gradient(180deg, var(--navy-dark) 0%, var(--navy) 100%); height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; box-shadow: 4px 0 24px rgba(0,0,0,0.15); flex-shrink: 0; }
+.sidebar-logo { padding: 22px 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-logo .sd-mark { display: flex; align-items: center; gap: 9px; margin-bottom: 6px; }
+.logo-sq { width: 34px; height: 34px; border-radius: 9px; background: var(--ocean); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: #fff; box-shadow: 0 3px 10px rgba(0,119,182,0.4); }
+.logo-name { font-size: 13px; font-weight: 800; color: #fff; line-height: 1.1; }
+.logo-sub { font-size: 8px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+.facility-name { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 18px 6px; }
+.nav { flex: 1; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.55); cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: var(--ocean); color: #fff; box-shadow: 0 3px 12px rgba(0,119,182,0.4); }
+.nav-item .ni { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.08); }
+.share-btn { width: 100%; background: var(--ocean); color: #fff; border: none; border-radius: 8px; padding: 9px 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 3px 10px rgba(0,119,182,0.3); transition: all 0.2s; }
+.share-btn:hover { background: var(--navy); }
+
+/* ── SHARE MODAL ── */
+.share-modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(2,62,138,0.4); backdrop-filter: blur(5px); z-index: 500; align-items: center; justify-content: center; }
+.share-modal-overlay.open { display: flex; }
+.share-modal { background: #fff; border-radius: 20px; padding: 32px; width: 460px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); position: relative; }
+.share-modal-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 8px; background: var(--sky); border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.share-modal h3 { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.share-modal .share-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 22px; }
+.share-field { margin-bottom: 16px; }
+.share-field label { display: block; font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+.share-field input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--sky-dark); border-radius: 10px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text); background: var(--sky); outline: none; transition: border 0.2s; }
+.share-field input:focus { border-color: var(--ocean); background: #fff; }
+.share-expiry-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.share-preview { background: var(--sky); border-radius: 12px; padding: 14px 16px; font-size: 11px; color: var(--text-muted); margin-bottom: 20px; border: 1px solid var(--sky-dark); line-height: 1.6; }
+.share-preview strong { color: var(--ocean); }
+.share-actions { display: flex; gap: 10px; }
+.share-send-btn { flex: 1; padding: 11px; border-radius: 10px; border: none; background: var(--ocean); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+.share-send-btn:hover { background: var(--navy); }
+.share-copy-btn { padding: 11px 16px; border-radius: 10px; border: 1.5px solid var(--sky-dark); background: #fff; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+.share-copy-btn:hover { background: var(--sky); }
+
+/* Expiry overlay */
+.expiry-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, var(--navy-dark), var(--navy)); z-index: 9999; align-items: center; justify-content: center; text-align: center; }
+.expiry-overlay.show { display: flex; }
+.expiry-box { color: #fff; max-width: 380px; padding: 40px; }
+.expiry-icon { font-size: 56px; margin-bottom: 20px; }
+.expiry-box h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+.expiry-box p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+
+/* ── MAIN ── */
+.main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── TOPBAR ── */
+.topbar { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--sky-dark); padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.topbar-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.topbar-title span { color: var(--ocean); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.search-bar { background: var(--sky); border: 1px solid var(--sky-dark); border-radius: 8px; padding: 7px 14px; font-size: 12px; color: var(--text-muted); width: 200px; outline: none; font-family: 'Inter', sans-serif; }
+.search-bar:focus { border-color: var(--ocean); }
+.notif-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--sky); border: 1px solid var(--sky-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; position: relative; }
+.notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--red); border: 1.5px solid #fff; }
+.profile-btn { display: flex; align-items: center; gap: 8px; background: var(--sky); border: 1px solid var(--sky-dark); border-radius: 9px; padding: 6px 12px 6px 6px; cursor: pointer; }
+.profile-avatar { width: 24px; height: 24px; border-radius: 6px; background: var(--ocean); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; }
+.profile-name { font-size: 11px; font-weight: 600; color: var(--text); }
+
+/* ── CONTENT ── */
+.content { padding: 24px 28px; flex: 1; }
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+.page-header { margin-bottom: 20px; }
+.page-header h2 { font-size: 20px; font-weight: 800; color: var(--text); }
+.page-header p { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+/* ── KPI CARDS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.kpi-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); transition: box-shadow 0.2s; position: relative; overflow: hidden; }
+.kpi-card:hover { box-shadow: var(--shadow-hover); }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0; }
+.kpi-card.blue::before { background: var(--ocean); }
+.kpi-card.green::before { background: var(--green); }
+.kpi-card.yellow::before { background: var(--yellow); }
+.kpi-card.red::before { background: var(--red); }
+.kpi-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+.kpi-value { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 5px; }
+.kpi-delta { font-size: 11px; font-weight: 600; }
+.kpi-delta.up { color: var(--green); }
+.kpi-delta.down { color: var(--red); }
+.kpi-delta.neutral { color: var(--text-muted); }
+
+/* ── WIDGET GRID ── */
+.widget-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+.widget { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); }
+.widget-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+.widget-badge { font-size: 9px; font-weight: 600; color: var(--ocean); background: var(--blue-light); border-radius: 5px; padding: 2px 7px; }
+
+/* Pie chart */
+.pie-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.pie-svg { width: 110px; height: 110px; }
+.pie-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-label { color: var(--text-muted); flex: 1; }
+.legend-val { font-weight: 700; color: var(--text); }
+
+/* Alerts */
+.alert-list { display: flex; flex-direction: column; gap: 8px; }
+.alert-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 11px; }
+.alert-item.warn { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); }
+.alert-item.danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); }
+.alert-item.info { background: rgba(0,119,182,0.08); border: 1px solid rgba(0,119,182,0.2); }
+.alert-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.alert-item.warn .alert-dot { background: var(--yellow); }
+.alert-item.danger .alert-dot { background: var(--red); }
+.alert-item.info .alert-dot { background: var(--ocean); }
+
+/* Activity feed */
+.activity-widget { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); }
+.activity-list { display: flex; flex-direction: column; gap: 0; }
+.activity-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 12px; }
+.activity-item:last-child { border-bottom: none; }
+.activity-icon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.activity-icon.blue { background: var(--blue-light); }
+.activity-icon.green { background: rgba(16,185,129,0.1); }
+.activity-icon.yellow { background: rgba(245,158,11,0.1); }
+.activity-text { flex: 1; color: var(--text); }
+.activity-text small { color: var(--text-muted); font-size: 10px; display: block; }
+.activity-time { font-size: 10px; color: var(--text-muted); }
+
+/* ── ROOMS ── */
+.rooms-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+.status-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.status-filter { padding: 5px 14px; border-radius: 20px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; opacity: 0.5; }
+.status-filter.active-filter { opacity: 1; }
+.status-filter.all { background: var(--navy); color: #fff; }
+.status-filter.available { background: rgba(16,185,129,0.12); color: var(--green); }
+.status-filter.occupied { background: rgba(0,119,182,0.12); color: var(--ocean); }
+.status-filter.maintenance { background: rgba(239,68,68,0.12); color: var(--red); }
+.status-filter.reserved { background: rgba(245,158,11,0.12); color: var(--yellow); }
+.add-btn { background: var(--ocean); color: #fff; border: none; border-radius: 9px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(0,119,182,0.3); transition: all 0.2s; white-space: nowrap; }
+.add-btn:hover { background: var(--navy); }
+.rooms-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.room-card { background: var(--glass); backdrop-filter: blur(10px); border: 1.5px solid var(--glass-border); border-radius: 13px; padding: 14px 12px; box-shadow: var(--shadow); cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+.room-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+.room-card::after { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; }
+.room-card.occupied::after { background: var(--ocean); }
+.room-card.available::after { background: var(--green); }
+.room-card.maintenance::after { background: var(--red); }
+.room-card.reserved::after { background: var(--yellow); }
+.room-card.hidden { display: none; }
+.room-num { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.room-status { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 600; border-radius: 20px; padding: 2px 7px; margin-bottom: 8px; }
+.room-status.occupied { background: rgba(0,119,182,0.12); color: var(--ocean); }
+.room-status.available { background: rgba(16,185,129,0.12); color: var(--green); }
+.room-status.maintenance { background: rgba(239,68,68,0.12); color: var(--red); }
+.room-status.reserved { background: rgba(245,158,11,0.12); color: var(--yellow); }
+.room-status-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.room-customer { font-size: 10px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.room-rate { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+.room-actions { display: flex; gap: 4px; }
+.room-action-btn { flex: 1; padding: 4px; border-radius: 5px; border: none; font-size: 9px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+.room-action-btn.primary { background: var(--blue-light); color: var(--ocean); }
+.room-action-btn.secondary { background: var(--sky); color: var(--text-muted); }
+.room-action-btn.danger { background: rgba(239,68,68,0.1); color: var(--red); }
+
+/* ── CUSTOMERS ── */
+.table-wrap { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { background: var(--sky); padding: 11px 16px; font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; text-align: left; border-bottom: 1px solid var(--sky-dark); }
+.data-table td { padding: 12px 16px; font-size: 12px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(0,119,182,0.03); }
+.cust-name { font-weight: 600; color: var(--text); }
+.cust-email { color: var(--text-muted); font-size: 11px; }
+.status-pill { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+.status-pill.active { background: rgba(16,185,129,0.12); color: var(--green); }
+.status-pill.inactive { background: rgba(239,68,68,0.08); color: var(--red); }
+.status-pill.waiting { background: rgba(245,158,11,0.12); color: var(--yellow); }
+.paid-pill { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+.paid-pill.paid { background: rgba(16,185,129,0.12); color: var(--green); }
+.paid-pill.overdue { background: rgba(239,68,68,0.1); color: var(--red); }
+.paid-pill.pending { background: rgba(245,158,11,0.1); color: var(--yellow); }
+
+/* ── MAINTENANCE ── */
+.kanban { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.kanban-col { background: var(--sky); border-radius: 13px; padding: 14px; border: 1px solid var(--sky-dark); min-height: 200px; }
+.kanban-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.kanban-title { font-size: 12px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.kanban-count { background: var(--white); border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 700; color: var(--text-muted); border: 1px solid var(--sky-dark); }
+.ticket { background: var(--white); border: 1px solid var(--sky-dark); border-radius: 10px; padding: 12px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; transition: box-shadow 0.2s; position: relative; }
+.ticket:hover { box-shadow: 0 4px 16px rgba(0,119,182,0.1); }
+.ticket-id { font-size: 9px; color: var(--text-muted); font-weight: 600; margin-bottom: 5px; }
+.ticket-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.ticket-meta { display: flex; align-items: center; justify-content: space-between; }
+.ticket-room { font-size: 10px; color: var(--ocean); font-weight: 600; background: var(--blue-light); border-radius: 4px; padding: 2px 6px; }
+.priority { font-size: 9px; font-weight: 700; border-radius: 4px; padding: 2px 6px; }
+.priority.p1 { background: rgba(239,68,68,0.1); color: var(--red); }
+.priority.p2 { background: rgba(245,158,11,0.1); color: var(--yellow); }
+.priority.p3 { background: rgba(16,185,129,0.1); color: var(--green); }
+.ticket-del { position: absolute; top: 8px; right: 8px; background: none; border: none; cursor: pointer; font-size: 11px; color: var(--text-muted); opacity: 0; transition: opacity 0.2s; padding: 2px 4px; border-radius: 4px; }
+.ticket:hover .ticket-del { opacity: 1; }
+.ticket-del:hover { background: rgba(239,68,68,0.1); color: var(--red); }
+
+/* ── FINANCE ── */
+.finance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.finance-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); }
+.finance-card h3 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+.finance-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 12px; }
+.finance-row:last-child { border-bottom: none; }
+.finance-row-label { color: var(--text-muted); }
+.finance-row-val { font-weight: 600; color: var(--text); }
+.finance-row-val.income { color: var(--green); }
+.finance-row-val.expense { color: var(--red); }
+
+/* ── WAITING LIST ── */
+.waiting-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.waiting-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 13px; padding: 16px; box-shadow: var(--shadow); position: relative; }
+.waiting-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.waiting-meta { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.waiting-meta span { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+.priority-badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.priority-badge.high { background: rgba(239,68,68,0.1); color: var(--red); }
+.priority-badge.medium { background: rgba(245,158,11,0.1); color: var(--yellow); }
+.priority-badge.low { background: rgba(16,185,129,0.1); color: var(--green); }
+.assign-btn { width: 100%; padding: 7px; border-radius: 8px; border: none; background: var(--ocean); color: #fff; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+.assign-btn:hover { background: var(--navy); }
+.card-del-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); opacity: 0; transition: opacity 0.2s; padding: 2px 5px; border-radius: 5px; }
+.waiting-card:hover .card-del-btn { opacity: 1; }
+.card-del-btn:hover { background: rgba(239,68,68,0.1); color: var(--red); }
+
+/* ── INVOICES ── */
+.invoice-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(2,62,138,0.35); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 18px; padding: 28px; width: 440px; max-width: 94vw; box-shadow: 0 24px 64px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto; }
+.modal-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 8px; background: var(--sky); border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.modal h3 { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 16px; }
+.modal-kpi { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
+.modal-kpi-item { background: var(--sky); border-radius: 10px; padding: 12px; }
+.modal-kpi-label { font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.modal-kpi-val { font-size: 16px; font-weight: 800; color: var(--text); }
+.modal-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.modal-btn { flex: 1; padding: 9px; border-radius: 9px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; min-width: 90px; }
+.modal-btn.primary { background: var(--ocean); color: #fff; }
+.modal-btn.secondary { background: var(--sky); color: var(--text-muted); }
+.modal-btn.danger { background: rgba(239,68,68,0.1); color: var(--red); }
+.modal-btn:hover { opacity: 0.85; }
+
+/* Form styles inside modals */
+.form-field { margin-bottom: 14px; }
+.form-field label { display: block; font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-field input, .form-field select, .form-field textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--sky-dark); border-radius: 9px; font-size: 12px; font-family: 'Inter', sans-serif; color: var(--text); background: var(--sky); outline: none; transition: border 0.2s; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--ocean); background: #fff; }
+.form-field textarea { resize: vertical; min-height: 60px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: #fff; border-radius: 10px; padding: 12px 18px; font-size: 12px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 9000; transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); display: flex; align-items: center; gap: 8px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── SETTINGS ── */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.settings-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
+.settings-card h3 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size: 12px; color: var(--text); }
+.setting-label small { display: block; color: var(--text-muted); font-size: 10px; }
+.toggle { width: 36px; height: 20px; border-radius: 20px; border: none; cursor: pointer; position: relative; flex-shrink: 0; transition: background 0.2s; }
+.toggle.on { background: var(--green); }
+.toggle.off { background: var(--sky-dark); }
+.toggle::after { content: ''; position: absolute; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left 0.2s; }
+.toggle.on::after { left: 19px; }
+.toggle.off::after { left: 3px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sky-dark); border-radius: 3px; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; }
+.empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+/* Search highlight */
+.search-hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sd-mark">
+      <div class="logo-sq">SD</div>
+      <div>
+        <div class="logo-name">SMART DESIGN</div>
+        <div class="logo-sub">Storage Facilities</div>
+      </div>
+    </div>
+  </div>
+  <div class="facility-name">Smart Design Storage</div>
+  <div class="nav">
+    <button class="nav-item active" onclick="showPage('dashboard', this)"><span class="ni">📊</span> Dashboard</button>
+    <button class="nav-item" onclick="showPage('rooms', this)"><span class="ni">🏢</span> Rooms</button>
+    <button class="nav-item" onclick="showPage('customers', this)"><span class="ni">👥</span> Customers</button>
+    <button class="nav-item" onclick="showPage('waiting', this)"><span class="ni">📋</span> Waiting List</button>
+    <button class="nav-item" onclick="showPage('maintenance', this)"><span class="ni">🔧</span> Maintenance</button>
+    <button class="nav-item" onclick="showPage('finance', this)"><span class="ni">💰</span> Finance</button>
+    <button class="nav-item" onclick="showPage('invoices', this)"><span class="ni">🧾</span> Invoices</button>
+    <button class="nav-item" onclick="showPage('settings', this)"><span class="ni">⚙️</span> Settings</button>
+  </div>
+  <div class="sidebar-footer" id="owner-share-footer">
+    <button class="share-btn" onclick="openShareModal()">🔗 Share Dashboard</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Smart Design <span>Storage Facilities</span></div>
+    <div class="topbar-right">
+      <input class="search-bar" id="global-search" placeholder="🔍  Search rooms, customers..." oninput="handleSearch(this.value)" />
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+      <div class="profile-btn">
+        <div class="profile-avatar">AD</div>
+        <div class="profile-name">Admin</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h2>Dashboard Overview</h2>
+        <p>Live snapshot of your storage facility</p>
+      </div>
+      <div class="kpi-grid" id="dash-kpis"></div>
+      <div class="widget-grid">
+        <div class="widget">
+          <div class="widget-title">Occupancy <span class="widget-badge">Live</span></div>
+          <div class="pie-wrap">
+            <svg class="pie-svg" viewBox="0 0 110 110" id="pie-chart">
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#E6EDF3" stroke-width="18"/>
+              <circle id="pie-occupied" cx="55" cy="55" r="40" fill="none" stroke="#0077B6" stroke-width="18" stroke-dasharray="0 251.3" stroke-dashoffset="62.8" transform="rotate(-90 55 55)"/>
+              <circle id="pie-available" cx="55" cy="55" r="40" fill="none" stroke="#10b981" stroke-width="18" stroke-dasharray="0 251.3" transform="rotate(-90 55 55)"/>
+              <circle id="pie-reserved" cx="55" cy="55" r="40" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="0 251.3" transform="rotate(-90 55 55)"/>
+              <circle id="pie-maintenance" cx="55" cy="55" r="40" fill="none" stroke="#ef4444" stroke-width="18" stroke-dasharray="0 251.3" transform="rotate(-90 55 55)"/>
+              <text id="pie-pct" x="55" y="50" text-anchor="middle" font-size="14" font-weight="800" fill="#0B0F14" font-family="Inter">0%</text>
+              <text x="55" y="63" text-anchor="middle" font-size="8" fill="#5a7299" font-family="Inter">Occupied</text>
+            </svg>
+            <div class="pie-legend" id="pie-legend"></div>
+          </div>
+        </div>
+        <div class="widget">
+          <div class="widget-title">Revenue Trend <span class="widget-badge">6 Months</span></div>
+          <svg width="100%" height="100" viewBox="0 0 400 100" fill="none" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0077B6" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#0077B6" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0 80 C40 70 80 60 120 55 C160 50 200 40 240 32 C280 24 320 18 360 12 L400 8" stroke="#0077B6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M0 80 C40 70 80 60 120 55 C160 50 200 40 240 32 C280 24 320 18 360 12 L400 8 L400 100 L0 100Z" fill="url(#revGrad)"/>
+            <circle cx="0" cy="80" r="4" fill="#0077B6"/><circle cx="80" cy="60" r="4" fill="#0077B6"/><circle cx="160" cy="50" r="4" fill="#0077B6"/><circle cx="240" cy="32" r="4" fill="#0077B6"/><circle cx="320" cy="18" r="4" fill="#0077B6"/><circle cx="400" cy="8" r="5" fill="#0077B6" stroke="#fff" stroke-width="2"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;">
+            <span style="font-size:9px;color:var(--text-muted)">Jan</span><span style="font-size:9px;color:var(--text-muted)">Feb</span><span style="font-size:9px;color:var(--text-muted)">Mar</span><span style="font-size:9px;color:var(--text-muted)">Apr</span><span style="font-size:9px;color:var(--text-muted)">May</span><span style="font-size:9px;color:var(--text-muted)">Jun</span>
+          </div>
+        </div>
+        <div class="widget">
+          <div class="widget-title">Alerts</div>
+          <div class="alert-list" id="dash-alerts"></div>
+        </div>
+      </div>
+      <div class="activity-widget">
+        <div class="widget-title" style="margin-bottom:10px;">Recent Activity</div>
+        <div class="activity-list" id="activity-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ ROOMS ══ -->
+    <div class="page" id="page-rooms">
+      <div class="page-header">
+        <h2>Room Management</h2>
+        <p id="rooms-subtitle">Loading rooms...</p>
+      </div>
+      <div class="rooms-toolbar">
+        <div class="status-filters" id="room-filters"></div>
+        <button class="add-btn" onclick="openAddRoomModal()">+ Add Room</button>
+      </div>
+      <div class="rooms-grid" id="rooms-grid"></div>
+    </div>
+
+    <!-- ══ CUSTOMERS ══ -->
+    <div class="page" id="page-customers">
+      <div class="page-header">
+        <h2>Customer Management</h2>
+        <p>All tenants, payment status, and room assignments</p>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+        <button class="add-btn" onclick="openAddCustomerModal()">+ Add Customer</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Customer</th><th>Room</th><th>Monthly Rate</th><th>Status</th><th>Payment</th><th>Move-in Date</th><th>Action</th></tr>
+          </thead>
+          <tbody id="customers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ WAITING LIST ══ -->
+    <div class="page" id="page-waiting">
+      <div class="page-header">
+        <h2>Waiting List</h2>
+        <p id="waiting-subtitle">Loading...</p>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+        <button class="add-btn" onclick="openAddWaitingModal()">+ Add to Waiting List</button>
+      </div>
+      <div class="waiting-grid" id="waiting-grid"></div>
+    </div>
+
+    <!-- ══ MAINTENANCE ══ -->
+    <div class="page" id="page-maintenance">
+      <div class="page-header">
+        <h2>Maintenance Board</h2>
+        <p>Track and resolve facility issues — Kanban workflow</p>
+      </div>
+      <div class="kanban">
+        <div class="kanban-col">
+          <div class="kanban-header">
+            <div class="kanban-title">🔴 Open <span class="kanban-count" id="maint-count-open">0</span></div>
+            <button class="add-btn" style="padding:5px 10px;font-size:10px;" onclick="openAddTicketModal('open')">+ New</button>
+          </div>
+          <div id="kanban-open"></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-header">
+            <div class="kanban-title">🟡 In Progress <span class="kanban-count" id="maint-count-progress">0</span></div>
+            <button class="add-btn" style="padding:5px 10px;font-size:10px;" onclick="openAddTicketModal('progress')">+ New</button>
+          </div>
+          <div id="kanban-progress"></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-header">
+            <div class="kanban-title">🟢 Closed <span class="kanban-count" id="maint-count-closed">0</span></div>
+          </div>
+          <div id="kanban-closed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FINANCE ══ -->
+    <div class="page" id="page-finance">
+      <div class="page-header">
+        <h2>Finance Overview</h2>
+        <p>Revenue, expenses, and net profit for Smart Design Storage</p>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+        <div class="kpi-card green"><div class="kpi-label">Total Revenue</div><div class="kpi-value">R45,200</div><div class="kpi-delta up">↑ 8.3% this month</div></div>
+        <div class="kpi-card red"><div class="kpi-label">Total Expenses</div><div class="kpi-value">R12,300</div><div class="kpi-delta down">↑ R800 vs last month</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Net Profit</div><div class="kpi-value">R32,900</div><div class="kpi-delta up">↑ 12.1% margin</div></div>
+      </div>
+      <div class="finance-grid">
+        <div class="finance-card">
+          <h3>Income Breakdown</h3>
+          <div class="finance-row"><span class="finance-row-label">Room Rentals (12 units)</span><span class="finance-row-val income">R40,800</span></div>
+          <div class="finance-row"><span class="finance-row-label">Late Payment Fees</span><span class="finance-row-val income">R2,400</span></div>
+          <div class="finance-row"><span class="finance-row-label">Admin Fees</span><span class="finance-row-val income">R1,200</span></div>
+          <div class="finance-row"><span class="finance-row-label">Insurance Add-ons</span><span class="finance-row-val income">R800</span></div>
+          <div class="finance-row" style="border-top:2px solid var(--sky-dark);margin-top:4px;padding-top:12px;"><span style="font-weight:700;color:var(--text)">Total Income</span><span class="finance-row-val income" style="font-size:16px;">R45,200</span></div>
+        </div>
+        <div class="finance-card">
+          <h3>Expense Breakdown</h3>
+          <div class="finance-row"><span class="finance-row-label">Maintenance &amp; Repairs</span><span class="finance-row-val expense">R4,500</span></div>
+          <div class="finance-row"><span class="finance-row-label">Electricity &amp; Water</span><span class="finance-row-val expense">R3,800</span></div>
+          <div class="finance-row"><span class="finance-row-label">Security</span><span class="finance-row-val expense">R2,200</span></div>
+          <div class="finance-row"><span class="finance-row-label">Cleaning Staff</span><span class="finance-row-val expense">R1,800</span></div>
+          <div class="finance-row"><span class="finance-row-label">Admin &amp; Software</span><span class="finance-row-val expense">R0</span></div>
+          <div class="finance-row" style="border-top:2px solid var(--sky-dark);margin-top:4px;padding-top:12px;"><span style="font-weight:700;color:var(--text)">Total Expenses</span><span class="finance-row-val expense" style="font-size:16px;">R12,300</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ INVOICES ══ -->
+    <div class="page" id="page-invoices">
+      <div class="page-header">
+        <h2>Invoices</h2>
+        <p>Auto-generated monthly invoices — export to PDF or send by email</p>
+      </div>
+      <div class="invoice-toolbar">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="status-filter all active-filter" onclick="filterInvoices('all',this)">All</button>
+          <button class="status-filter available" onclick="filterInvoices('paid',this)">Paid</button>
+          <button class="status-filter maintenance" onclick="filterInvoices('overdue',this)">Overdue</button>
+          <button class="status-filter reserved" onclick="filterInvoices('pending',this)">Pending</button>
+        </div>
+        <button class="add-btn" onclick="openAddInvoiceModal()">+ Generate Invoice</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Invoice #</th><th>Customer</th><th>Room</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="invoices-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <h2>Settings</h2>
+        <p>System configuration for Smart Design Storage Facilities</p>
+      </div>
+      <div class="settings-grid">
+        <div class="settings-card">
+          <h3>Facility Details</h3>
+          <div class="setting-row"><span class="setting-label">Facility Name<small>Smart Design Storage</small></span><button class="room-action-btn primary" style="width:auto;padding:5px 12px;" onclick="showToast('✅ Edit feature coming soon')">Edit</button></div>
+          <div class="setting-row"><span class="setting-label">Total Units<small id="settings-total-units">20 rooms configured</small></span><span id="settings-units-badge" style="font-weight:700;color:var(--ocean)">20</span></div>
+          <div class="setting-row"><span class="setting-label">Default Invoice Day<small>1st of each month</small></span><span style="font-weight:700;">1st</span></div>
+        </div>
+        <div class="settings-card">
+          <h3>Notifications</h3>
+          <div class="setting-row"><span class="setting-label">Payment reminders<small>3 days before due</small></span><button class="toggle on" onclick="toggleSetting(this,'payment_reminders')"></button></div>
+          <div class="setting-row"><span class="setting-label">Overdue alerts<small>Email + SMS</small></span><button class="toggle on" onclick="toggleSetting(this,'overdue_alerts')"></button></div>
+          <div class="setting-row"><span class="setting-label">Maintenance alerts<small>Push notification</small></span><button class="toggle on" onclick="toggleSetting(this,'maintenance_alerts')"></button></div>
+          <div class="setting-row"><span class="setting-label">Waiting list match<small>Auto-notify admin</small></span><button class="toggle off" onclick="toggleSetting(this,'waiting_match')"></button></div>
+        </div>
+        <div class="settings-card">
+          <h3>User Roles</h3>
+          <div class="setting-row"><span class="setting-label">Admin<small>Full access — you</small></span><span class="status-pill active">Active</span></div>
+          <div class="setting-row"><span class="setting-label">Manager<small>Operations access</small></span><span class="status-pill active">Active</span></div>
+          <div class="setting-row"><span class="setting-label">Staff<small>Limited view</small></span><span class="status-pill inactive">Inactive</span></div>
+        </div>
+        <div class="settings-card">
+          <h3>Share &amp; Access Links</h3>
+          <div class="setting-row"><span class="setting-label">Active client links<small id="active-links-count">0 links currently live</small></span><span id="active-links-badge" style="font-weight:700;color:var(--ocean)">0</span></div>
+          <div class="setting-row"><span class="setting-label">Share dashboard<small>Set expiry &amp; email client</small></span><button class="room-action-btn primary" style="width:auto;padding:5px 12px;" onclick="openShareModal()">🔗 Share</button></div>
+          <div class="setting-row"><span class="setting-label">Only owner can share<small>Clients cannot reshare</small></span><span style="font-size:10px;color:var(--green);font-weight:600;">✓ Locked</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ROOM DETAIL MODAL ══ -->
+<div class="modal-overlay" id="room-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('room-modal')">✕</button>
+    <h3 id="modal-title">Room Detail</h3>
+    <div class="modal-kpi">
+      <div class="modal-kpi-item"><div class="modal-kpi-label">Status</div><div class="modal-kpi-val" id="modal-status">—</div></div>
+      <div class="modal-kpi-item"><div class="modal-kpi-label">Monthly Rate</div><div class="modal-kpi-val" id="modal-rate">—</div></div>
+      <div class="modal-kpi-item"><div class="modal-kpi-label">Tenant</div><div class="modal-kpi-val" id="modal-tenant">—</div></div>
+      <div class="modal-kpi-item"><div class="modal-kpi-label">Payment</div><div class="modal-kpi-val" id="modal-payment">—</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);background:var(--sky);border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+      📋 <strong>Notes:</strong> <span id="modal-notes">No notes on file.</span>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" onclick="showToast('✅ Action saved'); closeModal('room-modal')">Assign Tenant</button>
+      <button class="modal-btn secondary" onclick="showToast('✅ Marked for maintenance'); closeModal('room-modal')">Mark Maintenance</button>
+      <button class="modal-btn danger" id="modal-delete-room-btn" onclick="">🗑 Delete Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD ROOM MODAL ══ -->
+<div class="modal-overlay" id="add-room-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-room-modal')">✕</button>
+    <h3>➕ Add New Room</h3>
+    <div class="form-row">
+      <div class="form-field"><label>Room Number</label><input type="number" id="nr-num" placeholder="e.g. 21" min="1"/></div>
+      <div class="form-field"><label>Status</label>
+        <select id="nr-status">
+          <option value="available">Available</option>
+          <option value="occupied">Occupied</option>
+          <option value="reserved">Reserved</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Monthly Rate</label><input type="text" id="nr-rate" placeholder="e.g. R2,500/mo"/></div>
+      <div class="form-field"><label>Tenant Name</label><input type="text" id="nr-tenant" placeholder="Leave blank if vacant"/></div>
+    </div>
+    <div class="form-field"><label>Notes</label><textarea id="nr-notes" placeholder="Any relevant notes..."></textarea></div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal('add-room-modal')">Cancel</button>
+      <button class="modal-btn primary" onclick="saveNewRoom()">Save Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD CUSTOMER MODAL ══ -->
+<div class="modal-overlay" id="add-customer-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-customer-modal')">✕</button>
+    <h3>👤 Add New Customer</h3>
+    <div class="form-row">
+      <div class="form-field"><label>Full Name</label><input type="text" id="nc-name" placeholder="e.g. Sipho Dlamini"/></div>
+      <div class="form-field"><label>Email</label><input type="email" id="nc-email" placeholder="email@example.com"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Phone</label><input type="text" id="nc-phone" placeholder="e.g. 082 345 6789"/></div>
+      <div class="form-field"><label>Room</label><input type="text" id="nc-room" placeholder="e.g. Room 3"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Monthly Rate</label><input type="text" id="nc-rate" placeholder="e.g. R2,800"/></div>
+      <div class="form-field"><label>Move-in Date</label><input type="text" id="nc-movein" placeholder="e.g. Jan 2025"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Status</label>
+        <select id="nc-status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="waiting">Waiting</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Payment</label>
+        <select id="nc-payment">
+          <option value="paid">Paid</option>
+          <option value="pending">Pending</option>
+          <option value="overdue">Overdue</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal('add-customer-modal')">Cancel</button>
+      <button class="modal-btn primary" onclick="saveNewCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD WAITING LIST MODAL ══ -->
+<div class="modal-overlay" id="add-waiting-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-waiting-modal')">✕</button>
+    <h3>📋 Add to Waiting List</h3>
+    <div class="form-row">
+      <div class="form-field"><label>Full Name</label><input type="text" id="nw-name" placeholder="e.g. Thabo Sithole"/></div>
+      <div class="form-field"><label>Phone</label><input type="text" id="nw-phone" placeholder="e.g. 073 345 6789"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Unit Size Needed</label><input type="text" id="nw-size" placeholder="e.g. Large unit (20m²+)"/></div>
+      <div class="form-field"><label>Preferred Move-in</label><input type="text" id="nw-movein" placeholder="e.g. August 2025"/></div>
+    </div>
+    <div class="form-field"><label>Priority</label>
+      <select id="nw-priority">
+        <option value="high">High Priority</option>
+        <option value="medium">Medium Priority</option>
+        <option value="low">Low Priority</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal('add-waiting-modal')">Cancel</button>
+      <button class="modal-btn primary" onclick="saveNewWaiting()">Add to List</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD MAINTENANCE TICKET MODAL ══ -->
+<div class="modal-overlay" id="add-ticket-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-ticket-modal')">✕</button>
+    <h3>🔧 New Maintenance Ticket</h3>
+    <div class="form-row">
+      <div class="form-field"><label>Issue Title</label><input type="text" id="nt-title" placeholder="e.g. Electrical fault"/></div>
+      <div class="form-field"><label>Room / Area</label><input type="text" id="nt-room" placeholder="e.g. Room 5 or Block A"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Priority</label>
+        <select id="nt-priority">
+          <option value="p1">P1 — Urgent</option>
+          <option value="p2">P2 — Medium</option>
+          <option value="p3">P3 — Low</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Column</label>
+        <select id="nt-col">
+          <option value="open">Open</option>
+          <option value="progress">In Progress</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal('add-ticket-modal')">Cancel</button>
+      <button class="modal-btn primary" onclick="saveNewTicket()">Create Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD INVOICE MODAL ══ -->
+<div class="modal-overlay" id="add-invoice-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-invoice-modal')">✕</button>
+    <h3>🧾 Generate Invoice</h3>
+    <div class="form-row">
+      <div class="form-field"><label>Customer Name</label><input type="text" id="ni-customer" placeholder="e.g. Sipho Dlamini"/></div>
+      <div class="form-field"><label>Room</label><input type="text" id="ni-room" placeholder="e.g. Room 3"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Amount (R)</label><input type="text" id="ni-amount" placeholder="e.g. R2,800"/></div>
+      <div class="form-field"><label>Due Date</label><input type="date" id="ni-due"/></div>
+    </div>
+    <div class="form-field"><label>Status</label>
+      <select id="ni-status">
+        <option value="pending">Pending</option>
+        <option value="paid">Paid</option>
+        <option value="overdue">Overdue</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal('add-invoice-modal')">Cancel</button>
+      <button class="modal-btn primary" onclick="saveNewInvoice()">Generate</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<!-- EXPIRY OVERLAY -->
+<div class="expiry-overlay" id="expiry-overlay">
+  <div class="expiry-box">
+    <div class="expiry-icon">🔒</div>
+    <h2>This link has expired</h2>
+    <p>Your preview access to the Smart Design Storage Facilities dashboard has ended.<br><br>Please contact <strong style="color:#fff;">Smart Design Storage</strong> to request a new access link.</p>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="share-modal-overlay" id="share-modal">
+  <div class="share-modal">
+    <button class="share-modal-close" onclick="closeShareModal()">✕</button>
+    <h3>🔗 Share Dashboard</h3>
+    <p class="share-sub">Send a timed access link to a client. Only you can share — clients cannot reshare.</p>
+    <div class="share-field"><label>Client Email Address</label><input type="email" id="share-email" placeholder="client@example.com" oninput="updateSharePreview()"/></div>
+    <div class="share-expiry-row">
+      <div class="share-field" style="margin:0;"><label>Access Expires On</label><input type="date" id="share-expiry-date" oninput="updateSharePreview()"/></div>
+      <div class="share-field" style="margin:0;"><label>Client Name (optional)</label><input type="text" id="share-name" placeholder="e.g. Sipho" oninput="updateSharePreview()"/></div>
+    </div>
+    <div class="share-preview" id="share-preview"><strong>Email preview will appear here</strong><br>Fill in the email and expiry date above to see a preview.</div>
+    <div class="share-actions">
+      <button class="share-copy-btn" onclick="copyShareLink()">📋 Copy Link</button>
+      <button class="share-send-btn" onclick="sendShareEmail()">✉️ Send via Email</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA — loaded from localStorage or seed data
+// ══════════════════════════════════════════════════
+const STORAGE_KEYS = {
+  rooms: 'sdsf_rooms',
+  customers: 'sdsf_customers',
+  waiting: 'sdsf_waiting',
+  maintenance: 'sdsf_maintenance',
+  invoices: 'sdsf_invoices',
+  sharedLinks: 'sdsf_shared_links',
+  settings: 'sdsf_settings',
+  activity: 'sdsf_activity'
+};
+
+const SEED_ROOMS = [
+  { id: 1,  num: 1,  status: 'occupied',    tenant: 'Sipho Dlamini',     rate: 'R2,800/mo', payment: 'Paid',    notes: 'Long-term tenant since Jan 2025. Reliable payer.' },
+  { id: 2,  num: 2,  status: 'occupied',    tenant: 'Nandi Mthembu',     rate: 'R3,200/mo', payment: 'Paid',    notes: 'Business storage — electronics.' },
+  { id: 3,  num: 3,  status: 'occupied',    tenant: 'Bongani Zulu',      rate: 'R2,200/mo', payment: 'Overdue', notes: '⚠️ Payment 12 days overdue. Follow up required.' },
+  { id: 4,  num: 4,  status: 'available',   tenant: null,                rate: 'R2,500/mo', payment: null,      notes: 'Available immediately. Clean and ready.' },
+  { id: 5,  num: 5,  status: 'occupied',    tenant: 'Thandi Cele',       rate: 'R4,100/mo', payment: 'Paid',    notes: 'Large unit — furniture storage.' },
+  { id: 6,  num: 6,  status: 'available',   tenant: null,                rate: 'R2,500/mo', payment: null,      notes: 'Recently vacated. Deep clean done.' },
+  { id: 7,  num: 7,  status: 'occupied',    tenant: 'Lungelo Ndlovu',    rate: 'R3,500/mo', payment: 'Pending', notes: 'Invoice sent. Awaiting EFT confirmation.' },
+  { id: 8,  num: 8,  status: 'reserved',    tenant: 'Nompilo Khumalo',   rate: 'R3,000/mo', payment: 'Deposit', notes: 'Reserved — move-in July 2025.' },
+  { id: 9,  num: 9,  status: 'occupied',    tenant: 'Zanele Mkhize',     rate: 'R2,900/mo', payment: 'Paid',    notes: 'Contractor storage — tools and equipment.' },
+  { id: 10, num: 10, status: 'available',   tenant: null,                rate: 'R2,500/mo', payment: null,      notes: 'Available immediately.' },
+  { id: 11, num: 11, status: 'occupied',    tenant: 'Mthokozisi Nkosi',  rate: 'R3,800/mo', payment: 'Paid',    notes: 'Business archive storage.' },
+  { id: 12, num: 12, status: 'available',   tenant: null,                rate: 'R2,500/mo', payment: null,      notes: 'Available. Minor painting needed.' },
+  { id: 13, num: 13, status: 'occupied',    tenant: 'Phiwayinkosi Dube', rate: 'R3,100/mo', payment: 'Paid',    notes: 'Student storage during holiday.' },
+  { id: 14, num: 14, status: 'occupied',    tenant: 'Sithembile Nzama',  rate: 'R2,700/mo', payment: 'Paid',    notes: '⚠️ Maintenance P1 active in this room.' },
+  { id: 15, num: 15, status: 'available',   tenant: null,                rate: 'R2,500/mo', payment: null,      notes: 'Available immediately.' },
+  { id: 16, num: 16, status: 'occupied',    tenant: 'Nomvula Buthelezi', rate: 'R3,300/mo', payment: 'Paid',    notes: 'Household storage — relocating.' },
+  { id: 17, num: 17, status: 'occupied',    tenant: 'Sibusiso Majola',   rate: 'R2,600/mo', payment: 'Paid',    notes: 'Regular tenant. No issues.' },
+  { id: 18, num: 18, status: 'reserved',    tenant: 'Thabo Sithole',     rate: 'R3,000/mo', payment: 'Deposit', notes: 'Reserved — move-in August 2025.' },
+  { id: 19, num: 19, status: 'occupied',    tenant: 'Celani Mchunu',     rate: 'R4,200/mo', payment: 'Paid',    notes: 'Premium large unit.' },
+  { id: 20, num: 20, status: 'available',   tenant: null,                rate: 'R2,500/mo', payment: null,      notes: 'Available immediately. Corner unit.' },
+];
+
+const SEED_CUSTOMERS = [
+  { id: 1, name: 'Sipho Dlamini',    email: 'sipho@email.com',    phone: '082 345 6789', room: 'Room 1',  rate: 'R2,800', status: 'active',   payment: 'paid',    movein: 'Jan 2025' },
+  { id: 2, name: 'Nandi Mthembu',    email: 'nandi@email.com',    phone: '083 456 7890', room: 'Room 2',  rate: 'R3,200', status: 'active',   payment: 'paid',    movein: 'Feb 2025' },
+  { id: 3, name: 'Bongani Zulu',     email: 'bongani@email.com',  phone: '071 234 5678', room: 'Room 3',  rate: 'R2,200', status: 'active',   payment: 'overdue', movein: 'Nov 2024' },
+  { id: 4, name: 'Thandi Cele',      email: 'thandi@email.com',   phone: '084 567 8901', room: 'Room 5',  rate: 'R4,100', status: 'active',   payment: 'paid',    movein: 'Mar 2025' },
+  { id: 5, name: 'Lungelo Ndlovu',   email: 'lungelo@email.com',  phone: '076 678 9012', room: 'Room 7',  rate: 'R3,500', status: 'active',   payment: 'pending', movein: 'Apr 2025' },
+  { id: 6, name: 'Zanele Mkhize',    email: 'zanele@email.com',   phone: '079 789 0123', room: 'Room 9',  rate: 'R2,900', status: 'active',   payment: 'paid',    movein: 'Dec 2024' },
+  { id: 7, name: 'Mthokozisi Nkosi', email: 'mtho@email.com',     phone: '083 890 1234', room: 'Room 11', rate: 'R3,800', status: 'active',   payment: 'paid',    movein: 'Jan 2025' },
+  { id: 8, name: 'Phumzile Gumede',  email: 'phumzile@email.com', phone: '072 901 2345', room: '—',       rate: '—',      status: 'inactive', payment: 'paid',    movein: 'Aug 2024' },
+];
+
+const SEED_WAITING = [
+  { id: 1, name: 'Nompilo Khumalo', phone: '081 234 5678', size: 'Large unit (20m²+)', movein: 'July 2025',      priority: 'high' },
+  { id: 2, name: 'Thabo Sithole',   phone: '073 345 6789', size: 'Medium unit (10m²)', movein: 'August 2025',    priority: 'high' },
+  { id: 3, name: 'Lindiwe Shabalala',phone:'082 456 7890', size: 'Small unit (5m²)',   movein: 'Flexible',       priority: 'medium' },
+  { id: 4, name: 'Siyanda Hadebe',  phone: '079 567 8901', size: 'Large unit (20m²+)', movein: 'September 2025', priority: 'medium' },
+  { id: 5, name: 'Nokwanda Mchunu', phone: '084 678 9012', size: 'Medium unit (10m²)', movein: 'October 2025',   priority: 'low' },
+];
+
+const SEED_MAINTENANCE = [
+  { id: 1,  num: 'MNT-014', title: 'Electrical fault — lights flickering', room: 'Room 14', priority: 'p1', col: 'open',     closed: false },
+  { id: 2,  num: 'MNT-015', title: 'Door lock mechanism stiff',            room: 'Room 8',  priority: 'p2', col: 'open',     closed: false },
+  { id: 3,  num: 'MNT-013', title: 'Roof gutter clearing — water pooling', room: 'Block A', priority: 'p2', col: 'progress', closed: false },
+  { id: 4,  num: 'MNT-012', title: 'Security camera offline — replaced',   room: 'Gate',    priority: 'p1', col: 'closed',   closed: true },
+  { id: 5,  num: 'MNT-011', title: 'Plumbing leak — Unit 2 repaired',      room: 'Room 2',  priority: 'p2', col: 'closed',   closed: true },
+  { id: 6,  num: 'MNT-010', title: 'Cleaning — deep clean after vacate',   room: 'Room 6',  priority: 'p3', col: 'closed',   closed: true },
+];
+
+const SEED_INVOICES = [
+  { id: 1, num: 'INV-0042', customer: 'Sipho Dlamini', room: 'Room 3', amount: 'R2,800', due: '01 Jun 2025', status: 'paid' },
+  { id: 2, num: 'INV-0041', customer: 'Bongani Zulu',  room: 'Room 7', amount: 'R2,200', due: '01 Jun 2025', status: 'overdue' },
+  { id: 3, num: 'INV-0040', customer: 'Nandi Mthembu', room: 'Room 5', amount: 'R3,200', due: '01 Jun 2025', status: 'paid' },
+  { id: 4, num: 'INV-0039', customer: 'Lungelo Ndlovu',room: 'Room 11',amount: 'R3,500', due: '01 Jun 2025', status: 'pending' },
+  { id: 5, num: 'INV-0038', customer: 'Thandi Cele',   room: 'Room 9', amount: 'R4,100', due: '01 Jun 2025', status: 'paid' },
+];
+
+const SEED_ACTIVITY = [
+  { icon: '🏢', color: 'blue',   text: 'Room 3 marked as Occupied — assigned to <strong>Sipho Dlamini</strong>', small: '2 minutes ago',  time: '09:41' },
+  { icon: '🧾', color: 'green',  text: 'Invoice #INV-0042 generated for Room 7 — <strong>R2,200/month</strong>', small: '15 minutes ago', time: '09:28' },
+  { icon: '🔧', color: 'yellow', text: 'Maintenance ticket #MNT-014 created — Electrical issue, Room 14',       small: '1 hour ago',     time: '08:43' },
+  { icon: '👤', color: 'blue',   text: 'New customer added to Waiting List — <strong>Nompilo Khumalo</strong>', small: '2 hours ago',    time: '07:55' },
+];
+
+// ── Load/Save helpers ──
+function load(key, seed) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : seed ? JSON.parse(JSON.stringify(seed)) : [];
+  } catch(e) { return seed ? JSON.parse(JSON.stringify(seed)) : []; }
+}
+function save(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) {}
+}
+function nextId(arr) {
+  return arr.length ? Math.max(...arr.map(x => x.id || 0)) + 1 : 1;
+}
+
+// ── App State ──
+let rooms       = load(STORAGE_KEYS.rooms, SEED_ROOMS);
+let customers   = load(STORAGE_KEYS.customers, SEED_CUSTOMERS);
+let waiting     = load(STORAGE_KEYS.waiting, SEED_WAITING);
+let maintenance = load(STORAGE_KEYS.maintenance, SEED_MAINTENANCE);
+let invoices    = load(STORAGE_KEYS.invoices, SEED_INVOICES);
+let sharedLinks = load(STORAGE_KEYS.sharedLinks, []);
+let activity    = load(STORAGE_KEYS.activity, SEED_ACTIVITY);
+let settings    = load(STORAGE_KEYS.settings, { payment_reminders: true, overdue_alerts: true, maintenance_alerts: true, waiting_match: false });
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('global-search').value = '';
+  document.querySelectorAll('.search-hidden').forEach(el => el.classList.remove('search-hidden'));
+}
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════
+function renderDashboard() {
+  const occ  = rooms.filter(r => r.status === 'occupied').length;
+  const avail = rooms.filter(r => r.status === 'available').length;
+  const res  = rooms.filter(r => r.status === 'reserved').length;
+  const maint= rooms.filter(r => r.status === 'maintenance').length;
+  const total= rooms.length;
+  const openTickets = maintenance.filter(t => t.col === 'open').length;
+
+  document.getElementById('dash-kpis').innerHTML = `
+    <div class="kpi-card blue"><div class="kpi-label">Total Rooms</div><div class="kpi-value">${total}</div><div class="kpi-delta neutral">Active storage units</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Occupied</div><div class="kpi-value">${occ}</div><div class="kpi-delta up">↑ 2 from last month</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Available</div><div class="kpi-value">${avail}</div><div class="kpi-delta neutral">${res} reserved</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Monthly Revenue</div><div class="kpi-value">R45,200</div><div class="kpi-delta up">↑ 8.3% vs last month</div></div>
+    <div class="kpi-card yellow"><div class="kpi-label">Expenses</div><div class="kpi-value">R12,300</div><div class="kpi-delta down">↑ R800 utilities</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Net Profit</div><div class="kpi-value">R32,900</div><div class="kpi-delta up">↑ 12.1% this month</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Maintenance Open</div><div class="kpi-value">${openTickets}</div><div class="kpi-delta down">${openTickets > 0 ? '1 high priority' : 'All clear'}</div></div>
+    <div class="kpi-card yellow"><div class="kpi-label">Waiting List</div><div class="kpi-value">${waiting.length}</div><div class="kpi-delta up">${waiting.filter(w=>w.priority==='high').length} high priority leads</div></div>
+  `;
+
+  // Pie chart
+  const C = 2 * Math.PI * 40;
+  const pctOcc = total ? occ / total : 0;
+  const pctAvail = total ? avail / total : 0;
+  const pctRes = total ? res / total : 0;
+  const pctMaint = total ? maint / total : 0;
+  function sliceOffset(before) { return -(before * C) + 62.8; }
+  const offOcc   = 62.8;
+  const offAvail = -(pctOcc * C) + 62.8;
+  const offRes   = -((pctOcc + pctAvail) * C) + 62.8;
+  const offMaint = -((pctOcc + pctAvail + pctRes) * C) + 62.8;
+
+  document.getElementById('pie-occupied').setAttribute('stroke-dasharray', `${pctOcc*C} ${C}`);
+  document.getElementById('pie-occupied').setAttribute('stroke-dashoffset', offOcc);
+  document.getElementById('pie-available').setAttribute('stroke-dasharray', `${pctAvail*C} ${C}`);
+  document.getElementById('pie-available').setAttribute('stroke-dashoffset', offAvail);
+  document.getElementById('pie-reserved').setAttribute('stroke-dasharray', `${pctRes*C} ${C}`);
+  document.getElementById('pie-reserved').setAttribute('stroke-dashoffset', offRes);
+  document.getElementById('pie-maintenance').setAttribute('stroke-dasharray', `${pctMaint*C} ${C}`);
+  document.getElementById('pie-maintenance').setAttribute('stroke-dashoffset', offMaint);
+  document.getElementById('pie-pct').textContent = total ? Math.round(pctOcc * 100) + '%' : '0%';
+
+  document.getElementById('pie-legend').innerHTML = `
+    <div class="legend-item"><div class="legend-dot" style="background:#0077B6"></div><span class="legend-label">Occupied</span><span class="legend-val">${occ}</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div><span class="legend-label">Available</span><span class="legend-val">${avail}</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span class="legend-label">Reserved</span><span class="legend-val">${res}</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span class="legend-label">Maintenance</span><span class="legend-val">${maint}</span></div>
+  `;
+
+  // Alerts
+  const overdue = customers.filter(c => c.payment === 'overdue');
+  let alertHTML = '';
+  overdue.forEach(c => { alertHTML += `<div class="alert-item danger"><div class="alert-dot"></div>${c.name} — payment overdue</div>`; });
+  if (openTickets > 0) alertHTML += `<div class="alert-item warn"><div class="alert-dot"></div>Maintenance: ${openTickets} open ticket(s)</div>`;
+  alertHTML += `<div class="alert-item warn"><div class="alert-dot"></div>${avail} room(s) currently available</div>`;
+  if (waiting.filter(w => w.priority === 'high').length > 0)
+    alertHTML += `<div class="alert-item info"><div class="alert-dot"></div>Waiting list: ${waiting.filter(w=>w.priority==='high').length} high-priority leads</div>`;
+  document.getElementById('dash-alerts').innerHTML = alertHTML || '<div class="alert-item info"><div class="alert-dot"></div>All clear — no active alerts</div>';
+
+  // Activity
+  document.getElementById('activity-list').innerHTML = activity.slice(0, 6).map(a => `
+    <div class="activity-item">
+      <div class="activity-icon ${a.color}">${a.icon}</div>
+      <div class="activity-text">${a.text}<small>${a.small}</small></div>
+      <div class="activity-time">${a.time}</div>
+    </div>`).join('');
+}
+
+function logActivity(icon, color, text) {
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' });
+  activity.unshift({ icon, color, text, small: 'Just now', time });
+  if (activity.length > 20) activity.pop();
+  save(STORAGE_KEYS.activity, activity);
+}
+
+// ══════════════════════════════════════════════════
+// ROOMS
+// ══════════════════════════════════════════════════
+let roomFilter = 'all';
+
+function renderRooms() {
+  const occ   = rooms.filter(r => r.status === 'occupied').length;
+  const avail = rooms.filter(r => r.status === 'available').length;
+  const res   = rooms.filter(r => r.status === 'reserved').length;
+  const maint = rooms.filter(r => r.status === 'maintenance').length;
+  document.getElementById('rooms-subtitle').textContent =
+    `${rooms.length} storage units — click any room to view details`;
+
+  document.getElementById('room-filters').innerHTML = `
+    <button class="status-filter all ${roomFilter==='all'?'active-filter':''}" onclick="setRoomFilter('all',this)">All (${rooms.length})</button>
+    <button class="status-filter occupied ${roomFilter==='occupied'?'active-filter':''}" onclick="setRoomFilter('occupied',this)">🔵 Occupied (${occ})</button>
+    <button class="status-filter available ${roomFilter==='available'?'active-filter':''}" onclick="setRoomFilter('available',this)">🟢 Available (${avail})</button>
+    <button class="status-filter reserved ${roomFilter==='reserved'?'active-filter':''}" onclick="setRoomFilter('reserved',this)">🟡 Reserved (${res})</button>
+    <button class="status-filter maintenance ${roomFilter==='maintenance'?'active-filter':''}" onclick="setRoomFilter('maintenance',this)">🔴 Maintenance (${maint})</button>
+  `;
+
+  const filtered = roomFilter === 'all' ? rooms : rooms.filter(r => r.status === roomFilter);
+  document.getElementById('rooms-grid').innerHTML = filtered.length ? filtered.map(r => `
+    <div class="room-card ${r.status}" onclick="openRoomModal(${r.id})">
+      <div class="room-num">Room ${r.num}</div>
+      <div class="room-status ${r.status}"><div class="room-status-dot"></div>${cap(r.status)}</div>
+      <div class="room-customer">${r.tenant || 'Vacant'}</div>
+      <div class="room-rate">${r.rate || 'From R2,500/mo'}</div>
+      <div class="room-actions">
+        <button class="room-action-btn primary" onclick="event.stopPropagation();openRoomModal(${r.id})">View</button>
+        <button class="room-action-btn danger" onclick="event.stopPropagation();deleteRoom(${r.id})">🗑</button>
+      </div>
+    </div>`).join('') : '<div class="empty-state"><div class="empty-icon">🏢</div>No rooms in this category.</div>';
+
+  updateSettingsCount();
+}
+
+function setRoomFilter(f, btn) {
+  roomFilter = f;
+  renderRooms();
+}
+
+function openRoomModal(id) {
+  const r = rooms.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('modal-title').textContent = 'Room ' + r.num + ' — ' + cap(r.status);
+  document.getElementById('modal-status').textContent = cap(r.status);
+  document.getElementById('modal-rate').textContent = r.rate || '—';
+  document.getElementById('modal-tenant').textContent = r.tenant || 'Vacant';
+  document.getElementById('modal-payment').textContent = r.payment || '—';
+  document.getElementById('modal-notes').textContent = r.notes || 'No notes on file.';
+  document.getElementById('modal-delete-room-btn').onclick = () => { deleteRoom(id); closeModal('room-modal'); };
+  openModal('room-modal');
+}
+
+function deleteRoom(id) {
+  if (!confirm('Delete this room? This cannot be undone.')) return;
+  rooms = rooms.filter(r => r.id !== id);
+  save(STORAGE_KEYS.rooms, rooms);
+  logActivity('🗑', 'yellow', 'Room deleted from system');
+  showToast('🗑 Room deleted');
+  renderRooms(); renderDashboard();
+}
+
+function openAddRoomModal() { openModal('add-room-modal'); }
+function saveNewRoom() {
+  const num = parseInt(document.getElementById('nr-num').value);
+  if (!num) { showToast('⚠️ Please enter a room number'); return; }
+  if (rooms.find(r => r.num === num)) { showToast('⚠️ Room number already exists'); return; }
+  const r = {
+    id: nextId(rooms), num,
+    status: document.getElementById('nr-status').value,
+    tenant: document.getElementById('nr-tenant').value.trim() || null,
+    rate: document.getElementById('nr-rate').value.trim() || 'R2,500/mo',
+    payment: null,
+    notes: document.getElementById('nr-notes').value.trim() || 'No notes on file.'
+  };
+  rooms.push(r);
+  rooms.sort((a,b) => a.num - b.num);
+  save(STORAGE_KEYS.rooms, rooms);
+  logActivity('🏢', 'blue', `Room ${num} added — ${cap(r.status)}`);
+  showToast(`✅ Room ${num} added successfully`);
+  closeModal('add-room-modal');
+  ['nr-num','nr-rate','nr-tenant','nr-notes'].forEach(id => document.getElementById(id).value = '');
+  renderRooms(); renderDashboard();
+}
+
+// ══════════════════════════════════════════════════
+// CUSTOMERS
+// ══════════════════════════════════════════════════
+function renderCustomers() {
+  const tbody = document.getElementById('customers-tbody');
+  tbody.innerHTML = customers.length ? customers.map(c => `
+    <tr>
+      <td><div class="cust-name">${esc(c.name)}</div><div class="cust-email">${esc(c.email)} · ${esc(c.phone)}</div></td>
+      <td><span style="font-weight:700;color:var(--ocean)">${esc(c.room)}</span></td>
+      <td>${esc(c.rate)}</td>
+      <td><span class="status-pill ${c.status}">${cap(c.status)}</span></td>
+      <td><span class="paid-pill ${c.payment}">${cap(c.payment)}</span></td>
+      <td>${esc(c.movein)}</td>
+      <td><button class="room-action-btn danger" onclick="deleteCustomer(${c.id})">🗑</button></td>
+    </tr>`).join('') : '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👥</div>No customers yet.</div></td></tr>';
+}
+
+function deleteCustomer(id) {
+  if (!confirm('Remove this customer? This cannot be undone.')) return;
+  const c = customers.find(x => x.id === id);
+  customers = customers.filter(x => x.id !== id);
+  save(STORAGE_KEYS.customers, customers);
+  logActivity('👤', 'yellow', `Customer ${c ? c.name : ''} removed`);
+  showToast('🗑 Customer removed');
+  renderCustomers();
+}
+
+function openAddCustomerModal() { openModal('add-customer-modal'); }
+function saveNewCustomer() {
+  const name = document.getElementById('nc-name').value.trim();
+  if (!name) { showToast('⚠️ Please enter a customer name'); return; }
+  const c = {
+    id: nextId(customers),
+    name, email: document.getElementById('nc-email').value.trim(),
+    phone: document.getElementById('nc-phone').value.trim(),
+    room: document.getElementById('nc-room').value.trim() || '—',
+    rate: document.getElementById('nc-rate').value.trim() || '—',
+    status: document.getElementById('nc-status').value,
+    payment: document.getElementById('nc-payment').value,
+    movein: document.getElementById('nc-movein').value.trim() || '—'
+  };
+  customers.push(c);
+  save(STORAGE_KEYS.customers, customers);
+  logActivity('👤', 'blue', `New customer added: <strong>${name}</strong>`);
+  showToast(`✅ ${name} added`);
+  closeModal('add-customer-modal');
+  ['nc-name','nc-email','nc-phone','nc-room','nc-rate','nc-movein'].forEach(id => document.getElementById(id).value='');
+  renderCustomers(); renderDashboard();
+}
+
+// ══════════════════════════════════════════════════
+// WAITING LIST
+// ══════════════════════════════════════════════════
+function renderWaiting() {
+  document.getElementById('waiting-subtitle').textContent =
+    `${waiting.length} lead${waiting.length !== 1 ? 's' : ''} in pipeline`;
+  document.getElementById('waiting-grid').innerHTML = waiting.length ? waiting.map(w => `
+    <div class="waiting-card">
+      <button class="card-del-btn" onclick="deleteWaiting(${w.id})" title="Remove">✕</button>
+      <div class="waiting-name">${esc(w.name)}</div>
+      <div class="waiting-meta">
+        <span>📞 ${esc(w.phone)}</span>
+        <span>📦 Need: ${esc(w.size)}</span>
+        <span>📅 Move-in: ${esc(w.movein)}</span>
+      </div>
+      <span class="priority-badge ${w.priority}">${cap(w.priority)} Priority</span>
+      <button class="assign-btn" style="margin-top:10px;" onclick="assignWaiting(${w.id})">Assign Room</button>
+    </div>`).join('') : '<div class="empty-state"><div class="empty-icon">📋</div>No one on the waiting list.</div>';
+}
+
+function deleteWaiting(id) {
+  const w = waiting.find(x => x.id === id);
+  waiting = waiting.filter(x => x.id !== id);
+  save(STORAGE_KEYS.waiting, waiting);
+  logActivity('📋', 'yellow', `${w ? w.name : 'Lead'} removed from waiting list`);
+  showToast('🗑 Removed from waiting list');
+  renderWaiting(); renderDashboard();
+}
+
+function assignWaiting(id) {
+  const w = waiting.find(x => x.id === id);
+  if (!w) return;
+  logActivity('🏢', 'green', `<strong>${w.name}</strong> assigned a room from waiting list`);
+  showToast(`✅ ${w.name} assigned successfully`);
+  deleteWaiting(id);
+}
+
+function openAddWaitingModal() { openModal('add-waiting-modal'); }
+function saveNewWaiting() {
+  const name = document.getElementById('nw-name').value.trim();
+  if (!name) { showToast('⚠️ Please enter a name'); return; }
+  const w = {
+    id: nextId(waiting), name,
+    phone: document.getElementById('nw-phone').value.trim(),
+    size: document.getElementById('nw-size').value.trim(),
+    movein: document.getElementById('nw-movein').value.trim() || 'Flexible',
+    priority: document.getElementById('nw-priority').value
+  };
+  waiting.push(w);
+  save(STORAGE_KEYS.waiting, waiting);
+  logActivity('📋', 'blue', `<strong>${name}</strong> added to waiting list`);
+  showToast(`✅ ${name} added to waiting list`);
+  closeModal('add-waiting-modal');
+  ['nw-name','nw-phone','nw-size','nw-movein'].forEach(id => document.getElementById(id).value='');
+  renderWaiting(); renderDashboard();
+}
+
+// ══════════════════════════════════════════════════
+// MAINTENANCE
+// ══════════════════════════════════════════════════
+function renderMaintenance() {
+  ['open','progress','closed'].forEach(col => {
+    const items = maintenance.filter(t => t.col === col);
+    document.getElementById('maint-count-' + col).textContent = items.length;
+    document.getElementById('kanban-' + col).innerHTML = items.length ? items.map(t => `
+      <div class="ticket" style="${col==='closed'?'opacity:0.65;':''}">
+        <button class="ticket-del" onclick="deleteTicket(${t.id})" title="Delete">✕</button>
+        <div class="ticket-id">#${t.num}</div>
+        <div class="ticket-title">${esc(t.title)}</div>
+        <div class="ticket-meta">
+          <span class="ticket-room">${esc(t.room)}</span>
+          <span class="priority ${t.priority}">${priorityLabel(t.priority, col)}</span>
+        </div>
+        ${col !== 'closed' ? `<div style="display:flex;gap:4px;margin-top:8px;">
+          ${col === 'open' ? `<button class="room-action-btn primary" style="font-size:9px;" onclick="moveTicket(${t.id},'progress')">→ In Progress</button>` : ''}
+          ${col === 'progress' ? `<button class="room-action-btn primary" style="font-size:9px;" onclick="moveTicket(${t.id},'closed')">→ Close</button>` : ''}
+        </div>` : ''}
+      </div>`).join('') : '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:20px 0;">No tickets</div>';
+  });
+}
+
+function priorityLabel(p, col) {
+  const labels = { p1: 'P1 — Urgent', p2: 'P2 — Medium', p3: 'P3 — Low' };
+  return col === 'closed' ? labels[p].replace('Urgent','Resolved').replace('Medium','Resolved').replace('Low','Resolved') : labels[p];
+}
+
+function deleteTicket(id) {
+  if (!confirm('Delete this ticket?')) return;
+  maintenance = maintenance.filter(t => t.id !== id);
+  save(STORAGE_KEYS.maintenance, maintenance);
+  showToast('🗑 Ticket deleted');
+  renderMaintenance(); renderDashboard();
+}
+
+function moveTicket(id, col) {
+  const t = maintenance.find(x => x.id === id);
+  if (!t) return;
+  t.col = col;
+  if (col === 'closed') t.closed = true;
+  save(STORAGE_KEYS.maintenance, maintenance);
+  logActivity('🔧', 'yellow', `Ticket #${t.num} moved to ${col === 'progress' ? 'In Progress' : 'Closed'}`);
+  showToast(`✅ Ticket moved to ${col === 'progress' ? 'In Progress' : 'Closed'}`);
+  renderMaintenance(); renderDashboard();
+}
+
+function openAddTicketModal(col) {
+  document.getElementById('nt-col').value = col;
+  openModal('add-ticket-modal');
+}
+function saveNewTicket() {
+  const title = document.getElementById('nt-title').value.trim();
+  if (!title) { showToast('⚠️ Please enter an issue title'); return; }
+  const maxNum = maintenance.reduce((m,t) => Math.max(m, parseInt(t.num.replace('MNT-','')) || 0), 0);
+  const t = {
+    id: nextId(maintenance),
+    num: 'MNT-' + String(maxNum + 1).padStart(3,'0'),
+    title,
+    room: document.getElementById('nt-room').value.trim() || 'General',
+    priority: document.getElementById('nt-priority').value,
+    col: document.getElementById('nt-col').value,
+    closed: document.getElementById('nt-col').value === 'closed'
+  };
+  maintenance.unshift(t);
+  save(STORAGE_KEYS.maintenance, maintenance);
+  logActivity('🔧', 'yellow', `Maintenance ticket #${t.num} created — ${title}`);
+  showToast(`✅ Ticket #${t.num} created`);
+  closeModal('add-ticket-modal');
+  ['nt-title','nt-room'].forEach(id => document.getElementById(id).value='');
+  renderMaintenance(); renderDashboard();
+}
+
+// ══════════════════════════════════════════════════
+// INVOICES
+// ══════════════════════════════════════════════════
+let invoiceFilter = 'all';
+
+function renderInvoices() {
+  const filtered = invoiceFilter === 'all' ? invoices : invoices.filter(i => i.status === invoiceFilter);
+  document.getElementById('invoices-tbody').innerHTML = filtered.length ? filtered.map(i => `
+    <tr>
+      <td><strong>${esc(i.num)}</strong></td>
+      <td>${esc(i.customer)}</td>
+      <td>${esc(i.room)}</td>
+      <td><strong>${esc(i.amount)}</strong></td>
+      <td>${esc(i.due)}</td>
+      <td><span class="paid-pill ${i.status}">${cap(i.status)}</span></td>
+      <td style="display:flex;gap:4px;">
+        <button class="room-action-btn primary" onclick="showToast('📄 PDF exported')">📄 PDF</button>
+        <button class="room-action-btn secondary" onclick="showToast('✉️ Email sent')">✉️</button>
+        <button class="room-action-btn danger" onclick="deleteInvoice(${i.id})">🗑</button>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🧾</div>No invoices found.</div></td></tr>';
+}
+
+function filterInvoices(f, btn) {
+  invoiceFilter = f;
+  document.querySelectorAll('.invoice-toolbar .status-filter').forEach(b => b.classList.remove('active-filter'));
+  btn.classList.add('active-filter');
+  renderInvoices();
+}
+
+function deleteInvoice(id) {
+  if (!confirm('Delete this invoice?')) return;
+  invoices = invoices.filter(i => i.id !== id);
+  save(STORAGE_KEYS.invoices, invoices);
+  showToast('🗑 Invoice deleted');
+  renderInvoices();
+}
+
+function openAddInvoiceModal() {
+  const d = new Date(); d.setDate(d.getDate() + 30);
+  document.getElementById('ni-due').value = d.toISOString().split('T')[0];
+  openModal('add-invoice-modal');
+}
+function saveNewInvoice() {
+  const customer = document.getElementById('ni-customer').value.trim();
+  if (!customer) { showToast('⚠️ Please enter a customer name'); return; }
+  const maxNum = invoices.reduce((m,i) => Math.max(m, parseInt(i.num.replace('INV-','')) || 0), 0);
+  const i = {
+    id: nextId(invoices),
+    num: 'INV-' + String(maxNum + 1).padStart(4,'0'),
+    customer,
+    room: document.getElementById('ni-room').value.trim() || '—',
+    amount: document.getElementById('ni-amount').value.trim() || '—',
+    due: document.getElementById('ni-due').value || '—',
+    status: document.getElementById('ni-status').value
+  };
+  invoices.unshift(i);
+  save(STORAGE_KEYS.invoices, invoices);
+  logActivity('🧾', 'green', `Invoice #${i.num} generated for ${customer}`);
+  showToast(`✅ Invoice #${i.num} created`);
+  closeModal('add-invoice-modal');
+  ['ni-customer','ni-room','ni-amount'].forEach(id => document.getElementById(id).value='');
+  renderInvoices();
+}
+
+// ══════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════
+function toggleSetting(btn, key) {
+  const isOn = btn.classList.contains('on');
+  btn.classList.toggle('on', !isOn);
+  btn.classList.toggle('off', isOn);
+  settings[key] = !isOn;
+  save(STORAGE_KEYS.settings, settings);
+  showToast('✅ Setting updated');
+}
+
+function updateSettingsCount() {
+  const total = rooms.length;
+  document.getElementById('settings-total-units').textContent = `${total} rooms configured`;
+  document.getElementById('settings-units-badge').textContent = total;
+  const live = sharedLinks.filter(l => l.expires > Date.now()).length;
+  document.getElementById('active-links-count').textContent = `${live} link${live !== 1 ? 's' : ''} currently live`;
+  document.getElementById('active-links-badge').textContent = live;
+}
+
+// ══════════════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════════════
+function handleSearch(q) {
+  q = q.toLowerCase().trim();
+  // Search rooms
+  if (document.getElementById('page-rooms').classList.contains('active')) {
+    document.querySelectorAll('#rooms-grid .room-card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.classList.toggle('search-hidden', q && !text.includes(q));
+    });
+  }
+  // Search customers
+  if (document.getElementById('page-customers').classList.contains('active')) {
+    document.querySelectorAll('#customers-tbody tr').forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.classList.toggle('search-hidden', q && !text.includes(q));
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════
+// SHARE / EXPIRY SYSTEM
+// ══════════════════════════════════════════════════
+(function checkExpiry() {
+  const params = new URLSearchParams(window.location.search);
+  const expires = params.get('expires');
+  if (!expires) return;
+  const footer = document.getElementById('owner-share-footer');
+  if (footer) footer.style.display = 'none';
+  const expiryTime = parseInt(expires, 10);
+  if (isNaN(expiryTime) || Date.now() > expiryTime) {
+    document.getElementById('expiry-overlay').classList.add('show');
+  }
+})();
+
+function openShareModal() {
+  const d = new Date();
+  d.setDate(d.getDate() + 2);
+  document.getElementById('share-expiry-date').value = d.toISOString().split('T')[0];
+  updateSharePreview();
+  openModal('share-modal');
+}
+function closeShareModal() { closeModal('share-modal'); }
+
+document.getElementById('share-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeShareModal();
+});
+
+function buildShareLink() {
+  const val = document.getElementById('share-expiry-date').value;
+  if (!val) return null;
+  const ts = new Date(val + 'T23:59:59').getTime();
+  return window.location.href.split('?')[0] + '?expires=' + ts;
+}
+
+function formatExpiryDateFriendly() {
+  const val = document.getElementById('share-expiry-date').value;
+  if (!val) return '(select a date)';
+  return new Date(val + 'T12:00:00').toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function updateSharePreview() {
+  const email = document.getElementById('share-email').value.trim();
+  const name  = document.getElementById('share-name').value.trim();
+  const expiry = formatExpiryDateFriendly();
+  const link = buildShareLink() || '[link will appear after selecting expiry date]';
+  const greeting = name ? `Hi ${name},` : 'Hi there,';
+  document.getElementById('share-preview').innerHTML = `
+    <strong>📧 Email preview:</strong><br><br>
+    ${greeting}<br><br>
+    You're invited to explore the <strong>Smart Design Storage Facilities</strong> management dashboard.
+    Click the link below to view live data on room availability, occupancy, financials, and more.<br><br>
+    <strong>👉 <a href="${link}" target="_blank" style="color:var(--ocean);">Open Dashboard →</a></strong><br><br>
+    ⏳ <em>This link expires on <strong>${expiry}</strong>.</em><br><br>
+    — <strong>Smart Design Storage Facilities</strong>`;
+}
+
+function recordShareLink() {
+  const val = document.getElementById('share-expiry-date').value;
+  if (!val) return;
+  const ts = new Date(val + 'T23:59:59').getTime();
+  sharedLinks.push({ created: Date.now(), expires: ts });
+  save(STORAGE_KEYS.sharedLinks, sharedLinks);
+  updateSettingsCount();
+}
+
+function copyShareLink() {
+  const link = buildShareLink();
+  if (!link) { showToast('⚠️ Please select an expiry date first'); return; }
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = link; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 Link copied to clipboard!'); recordShareLink(); closeShareModal();
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link).then(() => { showToast('📋 Link copied!'); recordShareLink(); closeShareModal(); }).catch(fallback);
+  } else { fallback(); }
+}
+
+function sendShareEmail() {
+  const email = document.getElementById('share-email').value.trim();
+  if (!email) { showToast('⚠️ Please enter a client email address'); return; }
+  const link = buildShareLink();
+  if (!link) { showToast('⚠️ Please select an expiry date first'); return; }
+  const name = document.getElementById('share-name').value.trim();
+  const expiry = formatExpiryDateFriendly();
+  const greeting = name ? `Hi ${name},` : 'Hi there,';
+  const subject = encodeURIComponent('Your Smart Design Storage Dashboard Access');
+  const body = encodeURIComponent(
+    `${greeting}\n\nYou're invited to explore the Smart Design Storage Facilities management dashboard.\n\nOpen Dashboard:\n${link}\n\nThis link expires on ${expiry}.\n\n— Smart Design Storage Facilities`
+  );
+  window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+  showToast(`✉️ Email draft opened for ${email}`);
+  recordShareLink(); closeShareModal();
+}
+
+// ══════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════════
+// INIT — render all sections on page load
+// ══════════════════════════════════════════════════
+renderDashboard();
+renderRooms();
+renderCustomers();
+renderWaiting();
+renderMaintenance();
+renderInvoices();
+updateSettingsCount();
+</script>
+</body>
+</html>
